@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Video — Jobs Briefing Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0c0e0d;
+  --bg2:       #111412;
+  --bg3:       #161918;
+  --border:    #1f2421;
+  --border2:   #2a302c;
+  --red:       #d94040;
+  --red-dim:   rgba(217,64,64,0.12);
+  --amber:     #e8a020;
+  --amber-dim: rgba(232,160,32,0.12);
+  --green:     #2cb86e;
+  --green-dim: rgba(44,184,110,0.12);
+  --cv-red:    #c0392b;
+  --txt:       #dde0d8;
+  --txt2:      #8a9488;
+  --txt3:      #556054;
+  --mono:      'IBM Plex Mono', monospace;
+  --cond:      'Barlow Condensed', sans-serif;
+  --body:      'Barlow', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── SCANLINE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ── HEADER ── */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--cv-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 2px;
+  color: var(--txt);
+  text-transform: uppercase;
+}
+
+.logo-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--txt3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.5px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.date-stamp {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+  letter-spacing: 0.5px;
+}
+
+/* ── TOP PRIORITIES BANNER ── */
+.priorities-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+}
+
+.priorities-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.priorities-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--txt3);
+  text-transform: uppercase;
+}
+
+.priorities-list {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.priority-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  padding: 7px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.priority-item .num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--txt3);
+}
+
+.priority-item.p-red   { border-left: 2px solid var(--red); }
+.priority-item.p-amber { border-left: 2px solid var(--amber); }
+
+/* ── FILTER TABS ── */
+.filter-bar {
+  padding: 0 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.filter-tab {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--txt3);
+  padding: 16px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.filter-tab:hover { color: var(--txt2); }
+.filter-tab.active { color: var(--txt); border-bottom-color: var(--cv-red); }
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  font-size: 10px;
+  margin-left: 6px;
+  background: var(--border2);
+  color: var(--txt2);
+}
+
+.filter-tab.active .tab-count { background: var(--cv-red); color: #fff; }
+
+/* ── MAIN LAYOUT ── */
+main {
+  padding: 32px 40px 80px;
+  max-width: 1400px;
+}
+
+/* ── SECTION ── */
+.section {
+  margin-bottom: 48px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-label {
+  font-family: var(--cond);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--txt);
+}
+
+.section-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+  letter-spacing: 1px;
+}
+
+.section-rule {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 20px;
+}
+
+/* ── JOB GRID ── */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 1px;
+  background: var(--border);
+}
+
+/* ── JOB CARD ── */
+.job-card {
+  background: var(--bg2);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.job-card:hover { background: var(--bg3); }
+
+.job-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+}
+
+.job-card.status-red::before    { background: var(--red); }
+.job-card.status-amber::before  { background: var(--amber); }
+.job-card.status-green::before  { background: var(--green); }
+
+/* card header */
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card-id {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--txt3);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.card-title {
+  font-family: var(--cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--txt);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.card-when {
+  font-size: 12px;
+  color: var(--txt2);
+  font-family: var(--mono);
+}
+
+/* status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-badge.red   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(217,64,64,0.25); }
+.status-badge.amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(232,160,32,0.25); }
+.status-badge.green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(44,184,110,0.25); }
+.status-badge.new   { background: rgba(44,184,110,0.08); color: #7ed4a8; border: 1px solid rgba(44,184,110,0.2); }
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* momentum line */
+.momentum {
+  font-size: 13px;
+  color: var(--txt2);
+  line-height: 1.55;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* detail sections */
+.detail-section {
+  margin-bottom: 14px;
+}
+
+.detail-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--txt3);
+  margin-bottom: 6px;
+}
+
+.detail-text {
+  font-size: 13px;
+  color: var(--txt2);
+  line-height: 1.55;
+}
+
+/* contacts */
+.contact-list { display: flex; flex-direction: column; gap: 5px; }
+
+.contact-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.contact-name {
+  color: var(--txt);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.contact-detail {
+  color: var(--txt3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* tasks */
+.task-list { display: flex; flex-direction: column; gap: 5px; }
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 5px 8px;
+}
+
+.task-item.t-red   { background: var(--red-dim);   color: #e87878; }
+.task-item.t-amber { background: var(--amber-dim); color: #d4a060; }
+.task-item.t-green { background: var(--green-dim); color: #6dc496; }
+
+.task-icon {
+  flex-shrink: 0;
+  font-size: 11px;
+  margin-top: 1px;
+}
+
+/* expand toggle */
+.card-details { display: none; }
+.job-card.expanded .card-details { display: block; }
+
+.expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--txt3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 10px 0 0;
+  transition: color 0.15s;
+}
+
+.expand-btn:hover { color: var(--txt2); }
+
+.expand-arrow {
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.job-card.expanded .expand-arrow { transform: rotate(180deg); }
+
+/* billing pill */
+.billing-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--border);
+  padding: 4px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt2);
+  margin-top: 6px;
+}
+
+.billing-pill.ok { color: var(--green); background: var(--green-dim); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-left {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+  letter-spacing: 0.5px;
+}
+
+.footer-right {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+}
+
+/* ── SECTION VISIBILITY ── */
+.section { display: block; }
+.section.hidden { display: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  header, .priorities-bar, .filter-bar, main, footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .jobs-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">CV</div>
+    <div>
+      <div class="logo-text">Control Video</div>
+      <div class="logo-sub">Operations Dashboard</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+    <div class="date-stamp" id="datestamp">Thursday, April 9, 2026 · Generated 10:00 AM EDT</div>
+  </div>
+</header>
+
+<!-- ── PRIORITIES BAR ── -->
+<div class="priorities-bar">
+  <div class="priorities-header">
+    <span class="priorities-label">Today's Top Priorities</span>
+  </div>
+  <div class="priorities-list">
+    <div class="priority-item p-red">
+      <span class="num">01</span>
+      <span class="badge-dot" style="color:var(--red);background:var(--red);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+      Call Paul Hadwiger (TLT) before 1pm — load-in is Monday &nbsp;·&nbsp; C: 571.382.8020
+    </div>
+    <div class="priority-item p-red">
+      <span class="num">02</span>
+      <span class="badge-dot" style="color:var(--red);background:var(--red);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+      Download + review Precon test files TODAY — immersive wall needs adjustment before Friday
+    </div>
+    <div class="priority-item p-red">
+      <span class="num">03</span>
+      <span class="badge-dot" style="color:var(--red);background:var(--red);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+      Find alternate LD for ADC / Anthem — Michelle Poley unavailable April 20–21
+    </div>
+    <div class="priority-item p-amber">
+      <span class="num">04</span>
+      <span class="badge-dot" style="color:var(--amber);background:var(--amber);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+      Attend BPC / Lilly integration call at 4:00pm EDT today
+    </div>
+    <div class="priority-item p-amber">
+      <span class="num">05</span>
+      <span class="badge-dot" style="color:var(--amber);background:var(--amber);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+      Call Pam at Exhibit Studios — NFL Draft lead has gone cold, window closing
+    </div>
+  </div>
+</div>
+
+<!-- ── FILTER TABS ── -->
+<div class="filter-bar">
+  <button class="filter-tab active" onclick="filterJobs('all')">All Jobs <span class="tab-count">9</span></button>
+  <button class="filter-tab" onclick="filterJobs('imminent')">Imminent <span class="tab-count">3</span></button>
+  <button class="filter-tab" onclick="filterJobs('upcoming')">Upcoming <span class="tab-count">3</span></button>
+  <button class="filter-tab" onclick="filterJobs('leads')">Sales Leads <span class="tab-count">3</span></button>
+  <button class="filter-tab" onclick="filterJobs('red')" style="margin-left:auto;">🔴 Urgent <span class="tab-count">4</span></button>
+</div>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- SECTION 1: IMMINENT -->
+  <div class="section" id="section-imminent">
+    <div class="section-header">
+      <span class="section-label">Imminent</span>
+      <span class="section-sub">Executing This Week</span>
+    </div>
+    <div class="section-rule"></div>
+    <div class="jobs-grid">
+
+      <!-- JOB: TLT 2026 -->
+      <div class="job-card status-red" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">IMMINENT · JOB 1 OF 3</div>
+            <div class="card-title">TLT 2026 — U.S. Army Live Event Series</div>
+            <div class="card-when">Load-in: MONDAY, Apr 13 · Soft Open: Apr 17 · Season: Late Apr–Jul</div>
+          </div>
+          <div>
+            <div class="status-badge red"><div class="badge-dot"></div>LOAD-IN MONDAY</div>
+            <div class="status-badge new" style="margin-top:5px;"><div class="badge-dot"></div>NEW TODAY</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🔴 Surfaced today. Load-in is 4 days out. Paul Hadwiger replied this morning wanting a call TODAY. Contract not yet executed. Most time-sensitive item on the board.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">Recurring live event production for JTF-NCR MDW (U.S. Army). Option Year #2 on existing contract — renewal processing at MICC. No matinees this year; 2 July shows; season starts last week of April. April 17 Soft Open = internal family/friends show + movie on screens.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Participants</div>
+            <div class="contact-list">
+              <div class="contact-row">
+                <span class="contact-name">Paul Hadwiger, PMP</span>
+                <span class="contact-detail">O: 202.902.0220 · C: 571.382.8020 · paul.a.hadwiger.civ@army.mil</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Ivan Bogachoff</span>
+                <span class="contact-detail">ibogachoff@gmail.com</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Mike Steiner</span>
+                <span class="contact-detail">CV Operations — crew + vehicle manifest submitted Apr 3</span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Call Paul Hadwiger TODAY — available 11am–1pm or after 3pm · C: 571.382.8020</div>
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Load-in Monday April 13 — lock in all logistics on today's call</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm OY#2 contract execution at MICC</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm "Salute to the Chief" scope — raised Feb, never answered</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Clarify April 17 Soft Open / movie night requirements for CV</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>Personnel + vehicle manifest submitted April 3 (15 crew / 10 vehicles)</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+      <!-- JOB: Precon Install -->
+      <div class="job-card status-amber" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">IMMINENT · JOB 2 OF 3</div>
+            <div class="card-title">Precon Events — LED Screen Install</div>
+            <div class="card-when">Install: FRIDAY, Apr 10 · 7th floor cafeteria + lobby</div>
+          </div>
+          <div>
+            <div class="status-badge amber"><div class="badge-dot"></div>INSTALL FRIDAY</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🟡 Plan locked and crew knows the sequence. Two items must close TODAY: test files need review and COI still not delivered. Immersive wall needs content adjustment before Friday.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">Two LED screens — 7th floor cafeteria (immersive video wall) and lobby (data wall). Cam tails + feeder pre-delivered April 6 to Alejandro Escobar on site. Install plan: gear push 4pm, build starts 5pm, cafeteria first → lobby, goal midnight (6–8 hrs).</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Participants</div>
+            <div class="contact-list">
+              <div class="contact-row">
+                <span class="contact-name">Steve Krauthamer</span>
+                <span class="contact-detail">C: 410.961.5705 · O: 240.669.6262 · steve@preconevents.com</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Nick Stevens</span>
+                <span class="contact-detail">C: 301.974.7060 · nicks@preconevents.com</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Alejandro Escobar</span>
+                <span class="contact-detail">On-site · +1 202-569-7361</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Mike Steiner</span>
+                <span class="contact-detail">CV Operations lead</span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Billing</div>
+            <div class="billing-pill ok">✓ Contract Signed · PO #91845 · Invoice Sent</div>
+            <div class="billing-pill" style="margin-left:6px;">⚠ COI Outstanding</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Download + review Steve's test files TODAY — immersive wall needs content adjustment before Friday</div>
+              <div class="task-item t-red"><span class="task-icon">🔴</span>COI listing Precon as additionally insured — deliver today</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm truck can stay on dock for full install duration (asked Apr 8, no answer)</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>Escort + security confirmed via Alejandro</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>Install sequence locked — cafeteria → lobby → midnight</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>On-site: reference "Precon" not "Control Video" per Steve's instruction</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+      <!-- JOB: BPC / Lilly -->
+      <div class="job-card status-amber" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">IMMINENT · JOB 3 OF 3</div>
+            <div class="card-title">BPC Creates / Eli Lilly — A/V Integration</div>
+            <div class="card-when">Call: TODAY, Apr 9 · 4:00–5:00pm EDT · Event: May 2026</div>
+          </div>
+          <div>
+            <div class="status-badge red"><div class="badge-dot"></div>CALL TODAY 4PM</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🟡 First CV + TCS joint call. Go in with A/V scope and integration questions prepared — this call sets coordination tone for the entire build.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">CV handles all A/V for the Lilly Lebanon Event. TCS Event Rentals handles tent/canopy. Call purpose: introduce both vendors, align on setup sequence, rigging, show flow, and power requirements.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Call Access</div>
+            <div class="detail-text" style="font-family:var(--mono);font-size:12px;">meet.google.com/coo-qrjy-wtw<br>Phone: (216) 930-7621 · PIN: 171349575</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Participants</div>
+            <div class="contact-list">
+              <div class="contact-row">
+                <span class="contact-name">Michael Atlan</span>
+                <span class="contact-detail">BPC Creates · matlan@bpcreates.com</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Jay Mooney</span>
+                <span class="contact-detail">TCS Event Rentals · jay.mooney@tcseventrentals.com</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Jon Hall</span>
+                <span class="contact-detail">TCS Event Rentals · jon.hall@tcseventrentals.com</span>
+              </div>
+              <div class="contact-row">
+                <span class="contact-name">Jo Friedman</span>
+                <span class="contact-detail">Local Support · C: 317.627.2853 · jo@317productions.com</span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Attend call TODAY at 4:00pm EDT</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Prep CV A/V scope + questions for TCS (power, rigging, sequencing)</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm local support + deposit with Jo Friedman · 317.627.2853</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>No CV contract visible yet — confirm scope + billing post-call</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 2: UPCOMING -->
+  <div class="section" id="section-upcoming">
+    <div class="section-header">
+      <span class="section-label">Upcoming</span>
+      <span class="section-sub">Next 2 Weeks</span>
+    </div>
+    <div class="section-rule"></div>
+    <div class="jobs-grid">
+
+      <!-- JOB: EventTech -->
+      <div class="job-card status-amber" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">UPCOMING · JOB 1 OF 3</div>
+            <div class="card-title">EventTech — LED Uplight Rental (96 Units)</div>
+            <div class="card-when">Pickup: Tue, Apr 14 · Event: Wed, Apr 15</div>
+          </div>
+          <div>
+            <div class="status-badge amber"><div class="badge-dot"></div>APR 14–15</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🟡 Straightforward rental. No complications flagged. Pickup Tuesday — staging needs confirmation today or tomorrow.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">Full inventory — all 96 LED uplight units committed. Truck dispatched for pickup April 14, event April 15. No uplight units available during this window.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Participants</div>
+            <div class="contact-list">
+              <div class="contact-row"><span class="contact-name">Ziggy Lippard</span><span class="contact-detail">EventTech · ziggy@eventtech.com</span></div>
+              <div class="contact-row"><span class="contact-name">Petra Compel</span><span class="contact-detail">pcompel@eventtech.com</span></div>
+              <div class="contact-row"><span class="contact-name">Craig Nachodsky</span><span class="contact-detail">craignacho@eventtech.com</span></div>
+              <div class="contact-row"><span class="contact-name">Jesse Miedra</span><span class="contact-detail">CV Warehouse — staging lead</span></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm truck dispatch + pickup logistics for April 14</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>All 96 units staged, checked, and ready by April 14 morning</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>Client confirmed, no issues flagged</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+      <!-- JOB: ADC / Anthem -->
+      <div class="job-card status-red" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">UPCOMING · JOB 2 OF 3</div>
+            <div class="card-title">ADC Conference — The Anthem</div>
+            <div class="card-when">Walkthrough: Mon, Apr 20 · Noon · The Anthem, DC</div>
+          </div>
+          <div>
+            <div class="status-badge red"><div class="badge-dot"></div>LD CONFLICT</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🔴 Critical issue unresolved — LD unavailable for mandatory walkthrough. ADC has flagged this twice. Tim + stage manager in town April 20–21 only. Must resolve before end of week.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">7 LED pillars + large LED screen wall (front verticals as downstage wings + full back screen floor-to-top), lighting for step-and-repeat, LD + board operator ($2,150). Conference and lighting billed separately. Content placed high to clear sightlines.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Technical Notes</div>
+            <div class="detail-text">Front LED verticals create side wings per pink reference image. Full back screen runs floor-to-top with no gap. Projection screen placement TBD at walkthrough. Shared Dropbox needed for all show media.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Participants</div>
+            <div class="contact-list">
+              <div class="contact-row"><span class="contact-name">Tonya Burke</span><span class="contact-detail">ADC · Direct: 240.477.9711 · tburke@defensecommunities.org</span></div>
+              <div class="contact-row"><span class="contact-name">Tim</span><span class="contact-detail">Stage Manager — in town April 20–21 only</span></div>
+              <div class="contact-row" style="opacity:0.5;"><span class="contact-name">Michelle Poley</span><span class="contact-detail">CV LD — UNAVAILABLE Apr 18–22 (NAB, Las Vegas)</span></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Billing</div>
+            <div class="billing-pill">⚠ Contract Under Review · Not Yet Signed</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>FIND ALTERNATE LD — Michelle Poley unavailable April 20–21. ADC requires LD at walkthrough. Resolve before Friday.</div>
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Call Tonya if no alternate LD found by Friday · 240.477.9711</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm contract is signed and executed</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Set up shared Dropbox for show media assets</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Provide revised staging diagram (front verticals as wings, full back screen to floor)</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>Walkthrough confirmed — April 20, noon at The Anthem</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+      <!-- JOB: CCMF -->
+      <div class="job-card status-amber" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">UPCOMING · JOB 3 OF 3</div>
+            <div class="card-title">CCMF 2026 — Carolina Country Music Fest</div>
+            <div class="card-when">Summer 2026 (date TBD) · Outdoor · Myrtle Beach, SC</div>
+          </div>
+          <div>
+            <div class="status-badge amber"><div class="badge-dot"></div>STRUCTURAL PENDING</div>
+            <div class="status-badge new" style="margin-top:5px;"><div class="badge-dot"></div>NEW TODAY</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🟡 New job surfaced today. Moving fast but structurally unresolved — wind bracing for outdoor screens is blocking. G2 Structures must confirm truss before CV can finalize scope.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">LED support for supplemental outdoor screens. Two outside screens — stage-right screen is over a backstage pathway (safety-critical). CV has pipe + cheeseboroughs. Need ~190' of truss + motors + gak from G2 Structures.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Vectorworks File</div>
+            <div class="detail-text" style="font-family:var(--mono);font-size:11px;word-break:break-all;">dropbox.com/scl/fi/3pst7fysuw1o0tpqax65o/CCMF-2026.vwx</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Participants</div>
+            <div class="contact-list">
+              <div class="contact-row"><span class="contact-name">Jared Bileski</span><span class="contact-detail">C: 240.344.7109 · jared.bileski@gmail.com</span></div>
+              <div class="contact-row"><span class="contact-name">Brad Beltrondo</span><span class="contact-detail">Southern Entertainment · bbeltrondo@southernentertainment.com</span></div>
+              <div class="contact-row"><span class="contact-name">Cliff Ward</span><span class="contact-detail">G2 Structures (truss) · cliff@g2structures.com</span></div>
+              <div class="contact-row"><span class="contact-name">Chuck Draughn</span><span class="contact-detail">CV — looped in by Pavlo</span></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>G2 must confirm truss supply (~190') — blocking full scope finalization</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Review Vectorworks drawing — verify stage-right screen over backstage pathway (safety)</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Schedule call with Cliff Ward (G2) — Jared offered to facilitate</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Confirm event dates and finalize CV contract + billing</div>
+              <div class="task-item t-green"><span class="task-icon">🟢</span>Jared + Brad engaged and moving quickly</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 3: SALES LEADS -->
+  <div class="section" id="section-leads">
+    <div class="section-header">
+      <span class="section-label">Sales Leads</span>
+      <span class="section-sub">Quotes Out / Pursuing</span>
+    </div>
+    <div class="section-rule"></div>
+    <div class="jobs-grid">
+
+      <!-- LEAD: District Soccer -->
+      <div class="job-card status-amber" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">LEAD 1 OF 3</div>
+            <div class="card-title">District Soccer — RFK Fields LED Screens</div>
+            <div class="card-when">Venue: RFK Fields, DC · Date TBD</div>
+          </div>
+          <div>
+            <div class="status-badge amber"><div class="badge-dot"></div>QUOTE PENDING</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🟡 Quote received but pricing was missing. Easy fix — resend with full costs. Client is warm and waiting.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope Quoted</div>
+            <div class="detail-text">Moon LED trailer (2 configs), Russell LED trailer (2 configs), standalone monitors. Client also wants small screens for FIFA gaming activation.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Contact</div>
+            <div class="contact-list">
+              <div class="contact-row"><span class="contact-name">Alex Bearman</span><span class="contact-detail">Executive Director · alex@districtsoccer.org · C: (703) 946-4952</span></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Resend all quote options WITH pricing — Alex confirmed proposals received but costs were missing</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Add FIFA gaming monitor pricing to the resend</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Follow up by Friday if no response</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+      <!-- LEAD: Events DC Wharf -->
+      <div class="job-card status-amber" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">LEAD 2 OF 3</div>
+            <div class="card-title">Events DC — The Wharf LED Trailer</div>
+            <div class="card-when">Venue: The Wharf, DC · June 2026</div>
+          </div>
+          <div>
+            <div class="status-badge amber"><div class="badge-dot"></div>CONTRACT PENDING</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🟡 Soft numbers sent, no contract signed. Client has specific trailer type expectation not yet confirmed. Needs a follow-up push to move toward execution.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">LED trailer deployment at The Wharf, June 2026. Options A and B submitted. Client expects black trailers consistent with Emancipation Day deployments.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Contacts</div>
+            <div class="contact-list">
+              <div class="contact-row"><span class="contact-name">Jeffrey Boddie</span><span class="contact-detail">Production Manager · Jeffrey.Boddie@eventsdc.com</span></div>
+              <div class="contact-row"><span class="contact-name">Robert Ellis</span><span class="contact-detail">robert.ellis@eventsdc.com</span></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Clarify trailer type with Jeffrey — confirm black trailer availability for June</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>Follow up on contract — not yet signed</div>
+              <div class="task-item t-amber"><span class="task-icon">🟡</span>NFL Draft project also referenced — flag for separate conversation</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+      <!-- LEAD: NFL Draft Pittsburgh -->
+      <div class="job-card status-red" onclick="toggleCard(this)">
+        <div class="card-top">
+          <div>
+            <div class="card-id">LEAD 3 OF 3</div>
+            <div class="card-title">NFL Draft — LED Trailer, Pittsburgh</div>
+            <div class="card-when">Location: Pittsburgh, PA · Client: Exhibit Studios</div>
+          </div>
+          <div>
+            <div class="status-badge red"><div class="badge-dot"></div>NO RESPONSE</div>
+          </div>
+        </div>
+        <div class="momentum">
+          🔴 Cold. Quote sent March 18, follow-up April 4 — zero response in 5 days. NFL Draft window is closing fast. Needs a direct call today.
+        </div>
+        <div class="card-details">
+          <div class="detail-section">
+            <div class="detail-label">Scope</div>
+            <div class="detail-text">LED screen trailer for NFL Draft activation in Pittsburgh. Quote adjusted per client conversation and sent. No issues flagged before it went cold.</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Key Contact</div>
+            <div class="contact-list">
+              <div class="contact-row"><span class="contact-name">Pam</span><span class="contact-detail">Exhibit Studios · pam@exhibitstudios.com</span></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Pending Tasks</div>
+            <div class="task-list">
+              <div class="task-item t-red"><span class="task-icon">🔴</span>Call Pam directly — 5 days no response. Confirm if still active before Draft window closes.</div>
+            </div>
+          </div>
+        </div>
+        <button class="expand-btn">Details <span class="expand-arrow">▾</span></button>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-left">Control Video LLC &nbsp;·&nbsp; controlvideo.com &nbsp;·&nbsp; ledtruckcompany.com &nbsp;·&nbsp; 301-277-3429</div>
+  <div class="footer-right" id="generated-time">Generated April 9, 2026 · 10:00 AM EDT</div>
+</footer>
+
+<script>
+// Toggle card expand
+function toggleCard(card) {
+  if(event.target.closest('.expand-btn') || event.target.tagName === 'A') return;
+  card.classList.toggle('expanded');
+}
+
+document.querySelectorAll('.expand-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const card = this.closest('.job-card');
+    card.classList.toggle('expanded');
+  });
+});
+
+// Filter tabs
+function filterJobs(filter) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  event.target.closest('.filter-tab').classList.add('active');
+
+  const imminent = document.getElementById('section-imminent');
+  const upcoming = document.getElementById('section-upcoming');
+  const leads    = document.getElementById('section-leads');
+
+  if (filter === 'all') {
+    [imminent, upcoming, leads].forEach(s => s.classList.remove('hidden'));
+  } else if (filter === 'imminent') {
+    imminent.classList.remove('hidden');
+    upcoming.classList.add('hidden');
+    leads.classList.add('hidden');
+  } else if (filter === 'upcoming') {
+    imminent.classList.add('hidden');
+    upcoming.classList.remove('hidden');
+    leads.classList.add('hidden');
+  } else if (filter === 'leads') {
+    imminent.classList.add('hidden');
+    upcoming.classList.add('hidden');
+    leads.classList.remove('hidden');
+  } else if (filter === 'red') {
+    [imminent, upcoming, leads].forEach(s => s.classList.remove('hidden'));
+    // expand red cards only
+    document.querySelectorAll('.job-card.status-red').forEach(c => c.classList.add('expanded'));
+    document.querySelectorAll('.job-card.status-amber, .job-card.status-green').forEach(c => c.classList.remove('expanded'));
+  }
+}
+
+// Auto-expand all cards on load for quick scan
+document.querySelectorAll('.job-card').forEach(c => c.classList.add('expanded'));
+</script>
+
+</body>
+</html>
